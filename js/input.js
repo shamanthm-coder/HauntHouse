@@ -4,58 +4,112 @@ const ANDROID = {
   20: 'down',
   21: 'left',
   22: 'right',
-  23: 'select',
-  66: 'select',
-  85: 'select',
-  96: 'select',
+  23: 'ok',
+  66: 'ok',
+  85: 'ok',
+  96: 'ok',
 };
 
-export function bindInput(handlers) {
+const KEYS = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  w: 'up',
+  a: 'left',
+  s: 'down',
+  d: 'right',
+  W: 'up',
+  A: 'left',
+  S: 'down',
+  D: 'right',
+  Enter: 'ok',
+  ' ': 'ok',
+  Escape: 'back',
+  Backspace: 'back',
+  GoBack: 'back',
+  BrowserBack: 'back',
+};
+
+export function bindInput() {
+  const keys = { up: false, down: false, left: false, right: false };
+  const padHeld = { up: false, down: false, left: false, right: false };
+  const taps = [];
+  let ok = false;
+  let back = false;
+
+  function tap(action) {
+    if (action === 'up' || action === 'down' || action === 'left' || action === 'right') taps.push(action);
+  }
+
   window.addEventListener('keydown', (event) => {
-    const mapped = ANDROID[event.keyCode];
-    const key = mapped || event.key;
-    const arrow = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'up', 'down', 'left', 'right'].includes(key)
-      || ['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(event.key);
-    const select = key === 'select' || event.key === 'Enter' || event.key === ' ';
-    const back = key === 'back' || event.key === 'Escape' || event.key === 'Backspace' || event.key === 'GoBack' || event.key === 'BrowserBack';
+    const action = ANDROID[event.keyCode] || KEYS[event.key];
+    if (!action) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    if (action === 'ok') ok = true;
+    else if (action === 'back') back = true;
+    else if (!keys[action]) {
+      keys[action] = true;
+      tap(action);
+    }
+  });
 
-    if (arrow || select || back) event.preventDefault();
-    if (event.repeat && (select || event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'a' || event.key === 'd')) return;
+  window.addEventListener('keyup', (event) => {
+    const action = ANDROID[event.keyCode] || KEYS[event.key];
+    if (keys[action]) keys[action] = false;
+  });
 
-    if (key === 'up' || event.key === 'ArrowUp' || event.key === 'w' || event.key === 'W') handlers.up();
-    else if (key === 'down' || event.key === 'ArrowDown' || event.key === 's' || event.key === 'S') handlers.down();
-    else if (key === 'left' || event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') handlers.left();
-    else if (key === 'right' || event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') handlers.right();
-    else if (select) handlers.select();
-    else if (back) handlers.back();
+  window.addEventListener('blur', () => {
+    keys.up = false;
+    keys.down = false;
+    keys.left = false;
+    keys.right = false;
   });
 
   let previous = [];
   function poll() {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const next = { up: false, down: false, left: false, right: false };
     for (const pad of pads) {
       if (!pad) continue;
       const buttons = pad.buttons.map((button) => button.pressed);
       const edge = (index) => buttons[index] && !previous[index];
-      if (edge(12)) handlers.up();
-      if (edge(13)) handlers.down();
-      if (edge(14)) handlers.left();
-      if (edge(15)) handlers.right();
-      if (edge(0)) handlers.select();
-      if (edge(1)) handlers.back();
-      const x = pad.axes[0] || 0;
-      const y = pad.axes[1] || 0;
-      if (edge(16) || (y < -0.7 && !(previous.up))) handlers.up();
-      if (y > 0.7 && !previous.down) handlers.down();
-      if (x < -0.7 && !previous.left) handlers.left();
-      if (x > 0.7 && !previous.right) handlers.right();
+      next.up = next.up || buttons[12] || (pad.axes[1] || 0) < -0.55;
+      next.down = next.down || buttons[13] || (pad.axes[1] || 0) > 0.55;
+      next.left = next.left || buttons[14] || (pad.axes[0] || 0) < -0.55;
+      next.right = next.right || buttons[15] || (pad.axes[0] || 0) > 0.55;
+      if (edge(0)) ok = true;
+      if (edge(1)) back = true;
       previous = buttons;
-      previous.up = y < -0.7;
-      previous.down = y > 0.7;
-      previous.left = x < -0.7;
-      previous.right = x > 0.7;
+    }
+    for (const action of ['up', 'down', 'left', 'right']) {
+      if (next[action] && !padHeld[action]) tap(action);
+      padHeld[action] = next[action];
     }
     requestAnimationFrame(poll);
   }
   requestAnimationFrame(poll);
+
+  return {
+    held: {
+      get up() { return keys.up || padHeld.up; },
+      get down() { return keys.down || padHeld.down; },
+      get left() { return keys.left || padHeld.left; },
+      get right() { return keys.right || padHeld.right; },
+    },
+    takeTap() {
+      return taps.shift() || null;
+    },
+    takeOk() {
+      const value = ok;
+      ok = false;
+      return value;
+    },
+    takeBack() {
+      const value = back;
+      back = false;
+      return value;
+    },
+  };
 }

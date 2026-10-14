@@ -5,5 +5,8 @@
   "scripts": {
     "start": "node serve.mjs",
     "test": "node test/logic.test.mjs"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
   }
 }

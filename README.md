@@ -9,6 +9,7 @@ The official submission deadline is **October 23, 2026, 12:00 PM Pacific**. This
 ## Play
 
 ```bash
+npm install
 npm start
 ```
 
@@ -18,25 +19,25 @@ Open http://127.0.0.1:5173
 npm test
 ```
 
-The tests simulate a full escape and the fail states (walking into the ghost, hiding in front of it, midnight, a wrong code).
+The tests cover walking, the locked basement, picking up the key, getting caught, hiding, and escaping.
 
 Add `?debug=1` to the URL to show the ghost's state while tuning.
 
 ## Controls
 
-These match a Fire TV remote. A keyboard and a standard gamepad work the same way.
+You walk a 3D house. These match a Fire TV remote. A keyboard and a gamepad do the same thing.
 
 | Input | Action |
 | --- | --- |
-| D-pad up / down | Move the highlight |
-| D-pad left / right | Switch pace between Sneak and Walk |
-| Select (Enter) | Confirm the highlighted action |
+| Up | Walk forward |
+| Down | Step backward |
+| Left / Right | Turn |
+| OK (Enter) | Use what you are facing |
 | Back (Escape) | Pause, or cancel the keypad |
-| Stick / gamepad | Same as the D-pad. A confirms, B goes back |
 
-On the keypad, up and down change the selected digit. Left and right move between digits.
+A prompt at the bottom names the OK action when you are close to something: a crate, a door, a bed. On the keypad, up and down change the selected digit and left and right move between digits.
 
-Sneak is quiet and burns two minutes. Walk is faster, louder, and calls the ghost. The line under the scene names the room the ghost is in. Do not walk into that room. Loud searches call it toward you. Hide before it enters, then stay still until it leaves. If it sees you step into a hiding place, it catches you.
+Walking makes a little noise. Opening drawers and cabinets calls the ghost. The line at the bottom names the room it is in. Hide before it reaches you, then stay still until it leaves. If it sees you hide, it pulls you out.
 
 ## Win
 
@@ -52,20 +53,20 @@ The coat closet in the Foyer only hides you while the lights are off.
 
 | File | Role |
 | --- | --- |
-| `js/data.js` | Rooms, patrol route, item copy, and difficulty numbers |
-| `js/logic.js` | Inventory, clock, and the ghost: patrol, investigate, search, chase |
-| `js/ui.js` | 10-foot layout |
+| `js/data.js` | Floor plan, furniture, item spots, and difficulty numbers |
+| `js/sim.js` | Movement, inventory, clock, and the ghost |
+| `js/house.js` | 3D rooms, flashlight, and ghost mesh |
 | `js/input.js` | Remote key codes, keyboard, and gamepad |
 | `js/audio.js` | Small synthesized stings. No audio files, so the game stays offline |
-| `js/main.js` | Boots the page |
+| `js/main.js` | Render loop and HUD |
 
-Essential gameplay does not use a network. The dev server is only there so the browser can load ES modules.
+Essential gameplay does not use a network after `npm install`. The dev server only loads the page.
 
-To add a room, put it in `ROOMS` and `GRAPH` in `js/data.js`, then teach `useObject` in `js/logic.js` about anything the player can take or unlock.
+To add a room, put it in `ROOMS`, `CENTERS`, `LINKS`, and `GAPS` in `js/data.js`, then add a spot if the player can use something there.
 
 ## Fire TV
 
-The hackathon allows any framework, including web, as long as the demo video shows the app running on a Fire TV device or the Fire TV / Vega simulator. Vega OS runs React Native and WebView apps. Fire OS can host the same page in an Android TV WebView. A Unity player is not a Vega runtime, so this prototype is a remote-first web game instead of a 3D engine project.
+The hackathon allows any framework, including web, as long as the demo video shows the app running on a Fire TV device or the Fire TV / Vega simulator. This build is a Three.js house aimed with the remote: arrows move, OK uses the thing in front of you. Vega OS can show it in a WebView. Fire OS can show it in an Android TV WebView.
 
 Ship path for the demo:
 
@@ -77,4 +78,4 @@ Voice hints, extra floors, and an online clue service are left out on purpose. T
 
 ## License
 
-MIT. The art is CSS. There are no third-party assets.
+MIT. The house is built from simple 3D shapes. The only dependency is Three.js.

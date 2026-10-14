@@ -10,8 +10,32 @@
     <link rel="stylesheet" href="css/game.css">
   </head>
   <body>
-    <div id="app"></div>
-    <noscript>HauntHouse needs JavaScript. The game still runs offline once the page loads.</noscript>
+    <canvas id="view"></canvas>
+    <div id="reticle" class="hidden"></div>
+    <div id="hud" class="hidden">
+      <header>
+        <p class="brand">HauntHouse</p>
+        <h1 id="room">Foyer</h1>
+        <p id="clock">11:05 PM</p>
+      </header>
+      <p id="objective"></p>
+      <div class="lower">
+        <p id="hint"></p>
+        <p id="log"></p>
+        <p id="prompt"></p>
+        <div class="meta">
+          <p id="items"></p>
+          <p id="meter" class="meter">CALM</p>
+          <div class="track"><i id="bar"></i></div>
+        </div>
+        <p id="controls" class="control-hints"></p>
+        <p id="debug"></p>
+      </div>
+    </div>
+    <div id="overlay">
+      <div id="panel"></div>
+    </div>
+    <noscript>HauntHouse needs JavaScript.</noscript>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>
