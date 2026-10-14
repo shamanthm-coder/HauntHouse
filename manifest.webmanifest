@@ -1,0 +1,17 @@
+{
+  "name": "HauntHouse",
+  "short_name": "HauntHouse",
+  "description": "Find the items. Outsmart the ghost. Escape before midnight.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "background_color": "#070506",
+  "theme_color": "#070506",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
